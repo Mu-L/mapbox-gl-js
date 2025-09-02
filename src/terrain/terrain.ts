@@ -60,6 +60,7 @@ import type {
     FillExtrusionDepthUniformsType,
     FillExtrusionPatternUniformsType
 } from '../render/program/fill_extrusion_program';
+import type {MapDataEvent} from '../ui/events';
 
 const GRID_DIM = 128;
 
@@ -162,10 +163,7 @@ class ProxySourceCache extends SourceCache {
             reparseOverscaled: this._source.reparseOverscaled
         });
 
-        const incoming: {
-            [key: string]: string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } = idealTileIDs.reduce<Record<string, any>>((acc, tileID) => {
+        const incoming: Record<string, string> = idealTileIDs.reduce((acc, tileID) => {
             acc[tileID.key] = '';
             if (!this._tiles[tileID.key]) {
                 const tile = new Tile(tileID, this._source.tileSize * tileID.overscaleFactor(), transform.tileZoom, undefined, undefined, this._source.worldview);
@@ -350,6 +348,7 @@ export class Terrain extends Elevation {
     }
 
     set style(style: Style) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         style.on('data', this._onStyleDataEvent.bind(this));
         this._style = style;
         this._style.map.on('moveend', () => {
@@ -523,9 +522,8 @@ export class Terrain extends Elevation {
         return demScale * proxyTileSize;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _onStyleDataEvent(event: any) {
-        if (event.coord && event.dataType === 'source') {
+    _onStyleDataEvent(event: MapDataEvent) {
+        if (event.dataType === 'source' && event.coord) {
             this._clearRenderCacheForTile(event.sourceCacheId, event.coord);
         } else if (event.dataType === 'style') {
             this.invalidateRenderCache = true;
@@ -652,8 +650,7 @@ export class Terrain extends Elevation {
         this.renderingToTexture = false;
 
         // Gather all dem tiles that are assigned to proxy tiles
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const visibleKeys: Record<string, any> = {};
+        const visibleKeys: Record<string, number> = {};
         this._visibleDemTiles = [];
 
         for (const id of this.proxyCoords) {
@@ -756,8 +753,8 @@ export class Terrain extends Elevation {
 
         uniforms['u_exaggeration'] = this.exaggeration();
 
-        let demTile = null;
-        let prevDemTile = null;
+        let demTile: Tile | null = null;
+        let prevDemTile: Tile | null = null;
         let morphingPhase = 1.0;
 
         if (options && options.morphing && this._useVertexMorphing) {
@@ -773,8 +770,7 @@ export class Terrain extends Elevation {
             }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const filteringForDemTile = (tile: any) => {
+        const filteringForDemTile = (tile: Tile) => {
             if (!tile || !tile.demTexture) {
                 return gl.NEAREST;
             }
@@ -803,7 +799,9 @@ export class Terrain extends Elevation {
         assert(demTexture);
         context.activeTexture.set(gl.TEXTURE2);
         if (demTexture) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             setDemSizeUniform(demTexture);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             demTexture.bind(filteringForDemTile(demTile), gl.CLAMP_TO_EDGE);
         }
 
@@ -959,11 +957,13 @@ export class Terrain extends Elevation {
             }
             if (poolIndex === FBO_POOL_SIZE) {
                 poolIndex = 0;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this.renderToBackBuffer(accumulatedDrapes);
             }
         }
 
         // Reset states and render last drapes
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.renderToBackBuffer(accumulatedDrapes);
         this.renderingToTexture = false;
 
@@ -1170,8 +1170,7 @@ export class Terrain extends Elevation {
 
         if (!hasRasterSource) return;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const clearSourceCaches: Record<string, any> = {};
+        const clearSourceCaches: Record<string, string> = {};
         for (let i = 0; i < this._style.order.length; ++i) {
             const layer = this._style._mergedLayers[this._style.order[i]];
             const sourceCache = this._style.getLayerSourceCache(layer);
@@ -1638,6 +1637,7 @@ export class Terrain extends Elevation {
         }
 
         const pathToLookup = (key?: number | null) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             path.forEach(id => { lookup[id] = key; });
             path.length = 0;
         };

@@ -28,12 +28,14 @@ export type PlacedCollisionBox = {
     offscreen: boolean;
     occluded: boolean;
 };
-type PlacedCollisionCircles = {
+
+export type PlacedCollisionCircles = {
     circles: Array<number>;
     offscreen: boolean;
     collisionDetected: boolean;
     occluded: boolean;
 };
+
 type ScreenAnchorPoint = {
     occluded: boolean;
     perspectiveRatio: number;
@@ -317,6 +319,7 @@ class CollisionIndex {
                     if (minx < screenPlaneMin.x || maxx > screenPlaneMax.x ||
                         miny < screenPlaneMin.y || maxy > screenPlaneMax.y) {
                         // Path partially visible, clip
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         segments = clipLines(segments, screenPlaneMin.x, screenPlaneMin.y, screenPlaneMax.x, screenPlaneMax.y);
                     }
                 }
@@ -324,7 +327,9 @@ class CollisionIndex {
 
             for (const seg of segments) {
                 // interpolate positions for collision circles. Add a small padding to both ends of the segment
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 assert(seg.length > 0);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 interpolator.reset(seg, radius * 0.25);
 
                 let numCircles = 0;
@@ -373,6 +378,7 @@ class CollisionIndex {
         }
 
         return {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             circles: ((!showCollisionCircles && collisionDetected) || !inGrid) ? [] : placedCollisionCircles,
             offscreen: entirelyOffscreen,
             collisionDetected,
@@ -417,11 +423,15 @@ class CollisionIndex {
         const result: Record<string, any> = {};
 
         for (const feature of features) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const featureKey = feature.key;
             // Skip already seen features.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (seenFeatures[featureKey.bucketInstanceId] === undefined) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 seenFeatures[featureKey.bucketInstanceId] = {};
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (seenFeatures[featureKey.bucketInstanceId][featureKey.featureIndex]) {
                 continue;
             }
@@ -441,10 +451,14 @@ class CollisionIndex {
                 continue;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             seenFeatures[featureKey.bucketInstanceId][featureKey.featureIndex] = true;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (result[featureKey.bucketInstanceId] === undefined) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 result[featureKey.bucketInstanceId] = [];
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             result[featureKey.bucketInstanceId].push(featureKey.featureIndex);
         }
 

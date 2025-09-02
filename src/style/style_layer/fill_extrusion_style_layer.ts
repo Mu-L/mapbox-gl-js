@@ -66,8 +66,7 @@ class FillExtrusionStyleLayer extends StyleLayer {
     override getProgramIds(): ProgramName[] {
         const patternProperty = this.paint.get('fill-extrusion-pattern');
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const image = patternProperty.constantOr((1 as any));
+        const image = patternProperty.constantOr(1);
         return [image ? 'fillExtrusionPattern' : 'fillExtrusion'];
     }
 
@@ -121,6 +120,7 @@ class FillExtrusionStyleLayer extends StyleLayer {
 
         const screenQuery = queryGeometry.queryGeometry;
         const projectedQueryGeometry = screenQuery.isPointQuery() ? screenQuery.screenBounds : screenQuery.screenGeometry;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return checkIntersection(projectedBase, projectedTop, projectedQueryGeometry);
     }
 }
@@ -144,6 +144,7 @@ export function getIntersectionDistance(projectedQueryGeometry: Array<Point>, pr
         let i = 0;
         const a = projectedFace[i++];
         let b;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         while (!b || a.equals(b)) {
             b = projectedFace[i++];
             if (!b) return Infinity;
@@ -155,13 +156,17 @@ export function getIntersectionDistance(projectedQueryGeometry: Array<Point>, pr
 
             const p = projectedQueryGeometry[0];
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             const ab = b.sub(a);
             const ac = c.sub(a);
             const ap = p.sub(a);
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const dotABAB = dot(ab, ab);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const dotABAC = dot(ab, ac);
             const dotACAC = dot(ac, ac);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const dotAPAB = dot(ap, ab);
             const dotAPAC = dot(ap, ac);
             const denom = dotABAB * dotACAC - dotABAC * dotABAC;
@@ -171,6 +176,7 @@ export function getIntersectionDistance(projectedQueryGeometry: Array<Point>, pr
             const u = 1 - v - w;
 
             // Use the barycentric weighting along with the original triangle z coordinates to get the point of intersection.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             const distance = a.z * u + b.z * v + c.z * w;
 
             if (isFinite(distance)) return distance;

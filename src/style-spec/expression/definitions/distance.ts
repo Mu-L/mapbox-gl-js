@@ -275,8 +275,7 @@ function polygonToPolygonDistance(polygon1: Array<Array<[number, number]>>, poly
     return dist;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function updateQueue(distQueue: any, miniDist: number, ruler: CheapRuler, pointSet1: Array<[number, number]>, pointSet2: Array<[number, number]>, r1: IndexRange | null, r2: IndexRange | null) {
+function updateQueue(distQueue: TinyQueue<DistPair>, miniDist: number, ruler: CheapRuler, pointSet1: Array<[number, number]>, pointSet2: Array<[number, number]>, r1: IndexRange | null, r2: IndexRange | null) {
     if (r1 === null || r2 === null) return;
     const tempDist = bboxToBBoxDistance(getBBox(pointSet1, r1), getBBox(pointSet2, r2), ruler);
     // Insert new pair to the queue if the bbox distance is less than miniDist, the pair with biggest distance will be at the top
@@ -416,16 +415,20 @@ function pointsToGeometryDistance(originGeometry: Array<Array<Point>>, canonical
             lngLatPoints.push(getLngLatPoint(point, canonical));
         }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const ruler = new CheapRuler(lngLatPoints[0][1], 'meters');
     if (geometry.type === 'Point' || geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return pointSetsDistance(lngLatPoints, false /*isLine*/,
             (geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates) as Array<[number, number]>,
             geometry.type === 'LineString' /*isLine*/, ruler);
     }
     if (geometry.type === 'MultiLineString') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return pointSetToLinesDistance(lngLatPoints, false /*isLine*/, geometry.coordinates as Array<Array<[number, number]>>, ruler);
     }
     if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return pointSetToPolygonsDistance(lngLatPoints, false /*isLine*/,
             (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates) as Array<Array<Array<[number, number]>>>, ruler);
     }
@@ -441,15 +444,18 @@ function linesToGeometryDistance(originGeometry: Array<Array<Point>>, canonical:
         }
         lngLatLines.push(lngLatLine);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const ruler = new CheapRuler(lngLatLines[0][0][1], 'meters');
     if (geometry.type === 'Point' || geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
         return pointSetToLinesDistance(
             (geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates) as Array<[number, number]>,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             geometry.type === 'LineString' /*isLine*/, lngLatLines, ruler);
     }
     if (geometry.type === 'MultiLineString') {
         let dist = Infinity;
         for (let i = 0; i < geometry.coordinates.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const tempDist = pointSetToLinesDistance(geometry.coordinates[i] as Array<[number, number]>, true /*isLine*/, lngLatLines, ruler, dist);
             if (isNaN(tempDist)) return tempDist;
             if ((dist = Math.min(dist, tempDist)) === 0.0) return dist;
@@ -459,6 +465,7 @@ function linesToGeometryDistance(originGeometry: Array<Array<Point>>, canonical:
     if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
         let dist = Infinity;
         for (let i = 0; i < lngLatLines.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const tempDist = pointSetToPolygonsDistance(lngLatLines[i], true /*isLine*/,
                 (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates) as Array<Array<Array<[number, number]>>>,
                 ruler, dist);
@@ -479,15 +486,18 @@ function polygonsToGeometryDistance(originGeometry: Array<Array<Point>>, canonic
         }
         lngLatPolygons.push(lngLatPolygon);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const ruler = new CheapRuler(lngLatPolygons[0][0][0][1], 'meters');
     if (geometry.type === 'Point' || geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
         return pointSetToPolygonsDistance(
             (geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates) as Array<[number, number]>,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             geometry.type === 'LineString' /*isLine*/, lngLatPolygons, ruler);
     }
     if (geometry.type === 'MultiLineString') {
         let dist = Infinity;
         for (let i = 0; i < geometry.coordinates.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const tempDist = pointSetToPolygonsDistance(geometry.coordinates[i] as Array<[number, number]>, true /*isLine*/, lngLatPolygons, ruler, dist);
             if (isNaN(tempDist)) return tempDist;
             if ((dist = Math.min(dist, tempDist)) === 0.0) return dist;
@@ -497,6 +507,7 @@ function polygonsToGeometryDistance(originGeometry: Array<Array<Point>>, canonic
     if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
         return polygonsToPolygonsDistance(
             (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates) as Array<Array<Array<[number, number]>>>,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             lngLatPolygons, ruler);
     }
     return null;

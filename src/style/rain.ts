@@ -6,6 +6,7 @@ import {Transitionable, PossiblyEvaluated} from './properties';
 import Color from '../style-spec/util/color';
 import {getProperties, type RainProps as Props} from '../../3d-style/style/rain_properties';
 
+import type {Validator} from './validate_style';
 import type {RainSpecification} from '../style-spec/types';
 import type EvaluationParameters from './evaluation_parameters';
 import type {TransitionParameters, ConfigOptions, Transitioning} from './properties';
@@ -77,9 +78,11 @@ class Rain extends Evented {
         }
 
         const properties = Object.assign({}, rain);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         for (const name of Object.keys(styleSpec.rain)) {
             // Fallback to use default style specification when the properties wasn't set
             if (properties[name] === undefined) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                 properties[name] = styleSpec.rain[name].default;
             }
         }
@@ -107,8 +110,7 @@ class Rain extends Evented {
     }
 
     _validate(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        validate: any,
+        validate: Validator,
         value: unknown,
         options?: {
             validate?: boolean;
@@ -118,6 +120,7 @@ class Rain extends Evented {
             return false;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return emitValidationErrors(this, validate.call(validateStyle, Object.assign({
             value,
             style: {glyphs: true, sprite: true},

@@ -31,7 +31,7 @@ import type RasterParticleState from '../render/raster_particle_state';
 import type FeatureIndex from '../data/feature_index';
 import type {Bucket} from '../data/bucket';
 import type {TypedStyleLayer} from '../style/style_layer/typed_style_layer';
-import type {WorkerSourceVectorTileResult} from './worker_source';
+import type {WorkerSourceVectorTileResult, WorkerSourceVectorTileCallback} from './worker_source';
 import type Actor from '../util/actor';
 import type DEMData from '../data/dem_data';
 import type {AlphaImage, SpritePositions} from '../util/image';
@@ -121,19 +121,15 @@ class Tile {
     lineAtlasTexture: Texture | null | undefined;
     glyphAtlasImage: AlphaImage | null | undefined;
     glyphAtlasTexture: Texture | null | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expirationTime: any;
+    expirationTime: number | null;
     expiredRequestCount: number;
     state: TileState;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    timeAdded: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    fadeEndTime: any;
+    timeAdded: number | null;
+    fadeEndTime: number | null;
     collisionBoxArray: CollisionBoxArray | null | undefined;
     redoWhenDone: boolean;
     showCollisionBoxes: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    placementSource: any;
+    placementSource: unknown;
     actor: Actor | null | undefined;
     vtLayers: {
         [_: string]: VectorTileLayer;
@@ -155,8 +151,7 @@ class Tile {
     hillshadeFBO: Framebuffer | null | undefined;
     demTexture: Texture | null | undefined;
     refreshedUponExpiration: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    reloadCallback: any;
+    reloadCallback: WorkerSourceVectorTileCallback | null | undefined;
     resourceTiming: Array<PerformanceResourceTiming> | null | undefined;
     queryPadding: number;
     rasterParticleState: RasterParticleState | null | undefined;
@@ -779,16 +774,23 @@ class Tile {
             boundsIndices = new TriangleIndexArray();
 
             for (const {x, y} of boundsLine) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                 boundsVertices.emplaceBack(x, y, 0, 0);
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             const indices = earcut(boundsVertices.int16.subarray(0, boundsVertices.length * 4), undefined, 4);
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             for (let i = 0; i < indices.length; i += 3) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                 boundsIndices.emplaceBack(indices[i], indices[i + 1], indices[i + 2]);
             }
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._tileBoundsBuffer = context.createVertexBuffer(boundsVertices, boundsAttributes.members);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._tileBoundsIndexBuffer = context.createIndexBuffer(boundsIndices);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         this._tileBoundsSegments = SegmentVector.simpleSegment(0, 0, boundsVertices.length, boundsIndices.length);
     }
 
@@ -806,7 +808,9 @@ class Tile {
             worldToECEFMatrix = mat4.invert(new Float64Array(16), transform.globeMatrix);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._makeGlobeTileDebugBorderBuffer(context, id, transform, normalizationMatrix, worldToECEFMatrix, phase);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._makeGlobeTileDebugTextBuffer(context, id, transform, normalizationMatrix, worldToECEFMatrix, phase);
     }
 

@@ -24,8 +24,7 @@ export default class FormatSectionOverride<T> implements Expression {
         if (ctx.formattedSection) {
             const overrides = this.defaultValue.property.overrides;
             if (overrides && overrides.hasOverride(ctx.formattedSection)) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return overrides.getOverride(ctx.formattedSection);
+                return overrides.getOverride(ctx.formattedSection) as T;
             }
         }
 
@@ -39,8 +38,7 @@ export default class FormatSectionOverride<T> implements Expression {
 
     eachChild(fn: (_: Expression) => void) {
         if (!this.defaultValue.isConstant()) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const expr: ZoomConstantExpression<'source'> = ((this.defaultValue.value) as any);
+            const expr: ZoomConstantExpression<'source'> = this.defaultValue.value as ZoomConstantExpression<'source'>;
             fn(expr._styleExpression.expression);
         }
     }
